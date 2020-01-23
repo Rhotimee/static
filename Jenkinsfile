@@ -3,11 +3,14 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'echo "Hello World"'
-        sh '''
-              echo "Multiline shell steps works too"
-              ls -lah
-          '''
+        sh 'tidy -e -q *.html'
+      }
+    }
+    stage('Upload to AWS') {
+      steps {
+        withAWS(region:'us-west-2',credentials:'blueocean') {
+          s3Upload(pathStyleAccessEnabled:true, payloadSigningEnabled: true, file:'index.html', bucket:'c3pipelines-rotimi')
+        }
       }
     }
   }
